@@ -13,7 +13,7 @@ import java.io.InputStreamReader;
 
 /**
  *
- * @author levig
+ * @author levigleik
  */
 public class PerceptronSimples {
 
