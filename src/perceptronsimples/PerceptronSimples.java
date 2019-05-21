@@ -25,6 +25,7 @@ public class PerceptronSimples {
         BufferedReader dataset = new BufferedReader(new InputStreamReader(new FileInputStream("C:\\Users\\levig\\Documents\\NetBeansProjects\\PerceptronSimples\\src\\perceptronsimples\\dermatology.data")));
         String linha;
         Integer[][] dermatology = new Integer[366][36];
+        Double[][] pesos = new Double[366][35];
         String[] dataDermatology;
         int id = 0;
         while ((linha = dataset.readLine()) != null) {
