@@ -28,7 +28,7 @@ public class PerceptronSimples {
         String linha;
         Integer[][] dermatology = new Integer[366][34];
         Integer[] classes = new Integer[366];
-        Double[][][] pesos = new Double[6][366][34];
+        Double[][] pesos = new Double[6][34];
         String[] dataDermatology;
         Double[] funcAtiv = new Double[6];
         Integer[][] desejado = new Integer[366][6];
@@ -84,21 +84,21 @@ public class PerceptronSimples {
         }
         Arrays.fill(funcAtiv, 0.0);
         for (int i = 0; i < 6; i++) {
-            for (int k = 0; k < 366; k++) {
-                randomizarPesos(pesos[i][k]);
-            }
+            randomizarPesos(pesos[i]);
         }
-        for (int i = 0; i < 5; i++) {
-            for (int k = 0; k < 6; k++) {
-                funcAtiv[k] = multiplicarPesos(pesos[k][i], dermatology[i]);
-                saida[i][k] = (funcAtiv[k] > 0) ? 1 : 0;
-                erro[i][k] = desejado[i][k] - saida[i][k];
-//                System.out.println("Func: " + funcAtiv[k]);
-                System.out.println("Desejado: " + desejado[i][k]);
-                System.out.println("Saida:    " + saida[i][k]);
-                pesos[k][i+1] = atualizarPesos(pesos[k][i], erro[i][k], dermatology[i]);
+        while(!verificarAcerto(desejado, saida)) {
+            for (int i = 0; i < 292; i++) {
+                for (int k = 0; k < 6; k++) {
+                    funcAtiv[k] = multiplicarPesos(pesos[k], dermatology[i]);
+                    saida[i][k] = (funcAtiv[k] > 0) ? 1 : 0;
+                    erro[i][k] = desejado[i][k] - saida[i][k];
+//                    System.out.println("Func: " + funcAtiv[k]);
+                    System.out.println("Desejado: " + desejado[i][k]);
+                    System.out.println("Saida:    " + saida[i][k]);
+                    pesos[k] = atualizarPesos(pesos[k], erro[i][k], dermatology[i]);
+                }
+                System.out.println("------------------------------------------------------");
             }
-            System.out.println("------------------------------------------------------");
         }
         for (int i = 0; i < 366; i++) {        
             for (int k = 0; k < 6; k++) {
@@ -120,17 +120,23 @@ public class PerceptronSimples {
     public static Double[] atualizarPesos(Double[] pesos, Integer erro, Integer[] derma) {
         Double[] novoPeso = new Double[34];
         for (int i = 0; i < 34; i++) {
-            novoPeso[i] = pesos[i] + erro*derma[i]*0.05;
+            novoPeso[i] = pesos[i] + erro * derma[i] * 0.05;
         }
         return novoPeso;
     }
-//    public static void calcularErro(Integer[][] erro, Integer[][] desejado, Integer[][] saida) {
-//        for (int i = 0; i < 6; i++) {
-//            for (int j = 0; j < 366; j++) {
-//                erro[i][j] = 
-//            }
-//        }
-//    }
+    public static Boolean verificarAcerto(Integer[][] desejado, Integer[][] saida) {
+        Boolean b = false;
+        for (int i = 0; i < 292; i++) {
+            for (int j = 0; j < 6; j++) {
+                if (desejado[i][j] == saida[i][j]) {
+                    b = true;
+                } else{
+                    return false;
+                }
+            }
+        }
+        return b;
+    }
     public static Double multiplicarPesos(Double[] pesos, Integer[] derma) {
         double result = 0;
         for (int i = 0; i < pesos.length; i++) {
