@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.Scanner;
+import javax.swing.SpringLayout;
 
 /**
  *
@@ -34,8 +36,17 @@ public class PerceptronSimples {
         Integer[][] desejado = new Integer[366][6];
         Integer[][] saida = new Integer[366][6];
         Integer[][] erro = new Integer[366][6];
+        int acertos = 0;
         int id = 0;
-        double n = 0.05;
+        System.out.println("Digite o percentual de treinamento");
+        Scanner treina = new Scanner(System.in);
+        int qtde_treino = treina.nextInt();
+        System.out.println("Digite o número de rodadas");
+        Scanner rod = new Scanner(System.in);
+        int rodadas = rod.nextInt();
+        System.out.println("Digite a taxa de aprendizagem");
+        Scanner tx = new Scanner(System.in);
+        double n = tx.nextDouble();
         while ((linha = dataset.readLine()) != null) {
             dataDermatology = linha.split(",");
             dermatology[id][0] = -1;
@@ -86,56 +97,38 @@ public class PerceptronSimples {
         for (int i = 0; i < 6; i++) {
             randomizarPesos(pesos[i]);
         }
-        while(!verificarAcerto(desejado, saida)) {
-            for (int i = 0; i < 292; i++) {
+        for (int r = 0; r < rodadas; r++) {
+            for (int i = 0; i < (int) ((qtde_treino * dermatology.length) / 100); i++) {
                 for (int k = 0; k < 6; k++) {
-                    funcAtiv[k] = multiplicarPesos(pesos[k], dermatology[i]);
-                    saida[i][k] = (funcAtiv[k] > 0) ? 1 : 0;
-                    erro[i][k] = desejado[i][k] - saida[i][k];
-//                    System.out.println("Func: " + funcAtiv[k]);
-                    System.out.println("Desejado: " + desejado[i][k]);
-                    System.out.println("Saida:    " + saida[i][k]);
-                    pesos[k] = atualizarPesos(pesos[k], erro[i][k], dermatology[i]);
+                        funcAtiv[k] = multiplicarPesos(pesos[k], dermatology[i]);
+                        saida[i][k] = (funcAtiv[k] > 0) ? 1 : 0;
+                        erro[i][k] = desejado[i][k] - saida[i][k];
+        //                    System.out.println("Func: " + funcAtiv[k]);
+    //                    System.out.println("Desejado: " + desejado[i][k]);
+    //                    System.out.println("Saida:    " + saida[i][k]);
+                        pesos[k] = atualizarPesos(pesos[k], erro[i][k], dermatology[i], n);
                 }
-                System.out.println("------------------------------------------------------");
+                if(Arrays.equals(saida[i], desejado[i])){
+                    acertos++;
+                }
+    //            System.out.println("------------------------------------------------------");
             }
         }
-        for (int i = 0; i < 366; i++) {        
-            for (int k = 0; k < 6; k++) {
-
-//                for (int j = 0; j < 34; j++) {
-//                    System.out.println("Saída: " + saida[i][k]);
-//                }   
-        }
-//            System.out.println("________________________");
-
-        }
-        System.out.println("1: " + c1 + "\n0: " + c0);
+       
+        System.out.println(acertos + " acertos de " + ((int) rodadas * (qtde_treino * dermatology.length) / 100));
+        System.err.printf("%.2f",   100 * ((double)acertos / ((rodadas * qtde_treino * dermatology.length) / 100)));
     }
     public static void randomizarPesos(Double[] pesos) {
         for (int j = 0; j < 34; j++) {
             pesos[j] = Math.random();
         }
     }
-    public static Double[] atualizarPesos(Double[] pesos, Integer erro, Integer[] derma) {
+    public static Double[] atualizarPesos(Double[] pesos, Integer erro, Integer[] derma, double n) {
         Double[] novoPeso = new Double[34];
         for (int i = 0; i < 34; i++) {
-            novoPeso[i] = pesos[i] + erro * derma[i] * 0.05;
+            novoPeso[i] = pesos[i] + erro * derma[i] * n;
         }
         return novoPeso;
-    }
-    public static Boolean verificarAcerto(Integer[][] desejado, Integer[][] saida) {
-        Boolean b = false;
-        for (int i = 0; i < 292; i++) {
-            for (int j = 0; j < 6; j++) {
-                if (desejado[i][j] == saida[i][j]) {
-                    b = true;
-                } else{
-                    return false;
-                }
-            }
-        }
-        return b;
     }
     public static Double multiplicarPesos(Double[] pesos, Integer[] derma) {
         double result = 0;
